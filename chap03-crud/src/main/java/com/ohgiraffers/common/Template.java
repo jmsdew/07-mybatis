@@ -1,12 +1,20 @@
 package com.ohgiraffers.common;
 
+import com.ohgiraffers.section02.javaconfig.model.JavaMenuDAO;
+import com.ohgiraffers.section03.remix.model.RemixMenuDAO;
+import org.apache.ibatis.datasource.pooled.PooledDataSource;
 import org.apache.ibatis.io.Resources;
+import org.apache.ibatis.mapping.Environment;
+import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
+import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory;
 
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Properties;
 
 public class Template {
     private static SqlSessionFactory sessionFactory;
@@ -24,4 +32,61 @@ public class Template {
         return sessionFactory.openSession(false);
 
     }
+
+
+    public static SqlSession getJavaSqlSession(){
+        if(sessionFactory == null){
+            try {
+                Properties properties = new Properties();
+                properties.load(new FileReader("src/main/resources/javaconfig/javaconfig.properties"));
+                String driver = properties.getProperty("Driver");
+                String url = properties.getProperty("URL");
+                String user = properties.getProperty("USER");
+                String pass = properties.getProperty("Password");
+
+                Environment environment = new Environment("dev",
+                        new JdbcTransactionFactory(),
+                        new PooledDataSource(driver,url,user,pass));
+
+                Configuration configuration = new Configuration(environment);
+                configuration.addMapper(JavaMenuDAO.class);
+
+                sessionFactory = new SqlSessionFactoryBuilder().build(configuration);
+
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        return sessionFactory.openSession(false);
+
+    }
+    public static SqlSession getRemixSession(){
+        if(sessionFactory == null){
+            try {
+                Properties properties = new Properties();
+                properties.load(new FileReader("src/main/resources/javaconfig/javaconfig.properties"));
+                String driver = properties.getProperty("Driver");
+                String url = properties.getProperty("URL");
+                String user = properties.getProperty("USER");
+                String pass = properties.getProperty("Password");
+
+                Environment environment = new Environment("dev",
+                        new JdbcTransactionFactory(),
+                        new PooledDataSource(driver,url,user,pass));
+
+                Configuration configuration = new Configuration(environment);
+                configuration.addMapper(RemixMenuDAO.class);
+
+                sessionFactory = new SqlSessionFactoryBuilder().build(configuration);
+
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        return sessionFactory.openSession(false);
+
+    }
+
 }
